@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognarena Technologies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.10.2/cdn.min.js" defer></script>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @media (max-width: 768px) {
+            .hero {
+                background-image: url('assets/bg2.png') !important;
+            }
+            .hero-content {
+                transform: translateY(-150%);
+            }
+        }
+        
+        /* Hamburger menu animations */
+        .hamburger-top,
+        .hamburger-middle,
+        .hamburger-bottom {
+            position: absolute;
+            width: 24px;
+            height: 2px;
+            top: 0;
+            left: 0;
+            background: #333;
+            transform: rotate(0);
+            transition: all 0.5s;
+        }
+        
+        .hamburger-middle {
+            transform: translateY(7px);
+        }
+        
+        .hamburger-bottom {
+            transform: translateY(14px);
+        }
+        
+        .open .hamburger-top {
+            transform: rotate(45deg) translateY(6px) translateX(6px);
+        }
+        
+        .open .hamburger-middle {
+            display: none;
+        }
+        
+        .open .hamburger-bottom {
+            transform: rotate(-45deg) translateY(6px) translateX(-6px);
+        }
+
+        /* Carousel navigation buttons */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.5);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .carousel-btn:hover {
+            background: rgba(255,255,255,0.8);
+        }
+        
+        .carousel-btn.prev {
+            left: 15px;
+        }
+        
+        .carousel-btn.next {
+            right: 15px;
+        }
+        
+        .carousel-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Enhanced Service Card Styles */
+        .service-card {
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+            will-change: transform;
+        }
+        
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .service-card:hover::before,
+        .service-card:focus::before,
+        .service-card.active::before {
+            opacity: 1;
+        }
+        
+        .service-card:hover,
+        .service-card:focus,
+        .service-card.active {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .service-title {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover .service-title,
+        .service-card:focus .service-title,
+        .service-card.active .service-title {
+            bottom: 0;
+        }
+        
+        .service-card:active {
+            transform: translateY(-5px) scale(1.01);
+        }
+
+        /* Updated Academics Section Styles */
+        .tech-card {
+            transition: all 0.6s cubic-bezier(0.25,0.1,0.25,1);
+            position: relative;
+            overflow: hidden;
+            will-change: transform, opacity;
+        }
+        
+        .tech-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            transition: inherit;
+        }
+        
+        .text-backdrop {
+            position: relative;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            transition: inherit;
+        }
+        
+        .tech-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            z-index: 0;
+            transition: inherit;
+            border-radius: 12px;
+        }
+        
+        /* Desktop Carousel */
+        .desktop-carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            perspective: 1000px;
+            transform-style: preserve-3d;
+        }
+        
+        .side-card {
+            width: 250px;
+            height: 400px;
+            transform: scale(0.93) translateZ(-50px);
+            opacity: 0.8;
+            filter: brightness(0.8);
+            transition: all 0.6s cubic-bezier(0.25,0.1,0.25,1);
+            border-radius: 12px;
+        }
+        
+        .center-card {
+            width: 350px;
+            height: 500px;
+            z-index: 10;
+            transform: scale(1.1) translateZ(0);
+            filter: brightness(1);
+            transition: all 0.6s cubic-bezier(0.25,0.1,0.25,1);
+            border-radius: 12px;
+        }
+        
+        .title-only {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            transition: inherit;
+            border-radius: 12px;
+        }
+        
+        .title-only h3 {
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 12px;
+            transition: inherit;
+        }
+        
+        /* Mobile Slider */
+        .tech-slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .tech-slider::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .tech-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            transition: transform 0.6s cubic-bezier(0.25,0.1,0.25,1);
+        }
+        
+        .slider-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .slider-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25,0.1,0.25,1);
+        }
+        
+        .slider-dot.active {
+            background-color: rgba(0, 0, 0, 0.7);
+            transform: scale(1.2);
+        }
+
+        /* Animation Timing */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.25,0.1,0.25,1) forwards;
+        }
+        /* Updated Share Buttons */
+.share-buttons {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+}
+
+.share-buttons a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    background-color: black;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.share-buttons a:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* Remove individual platform colors since we want uniform black/white */
+.facebook, .whatsapp, .linkedin, .instagram {
+    background-color: black !important;
+    color: white !important;
+}
+    </style>
+</head>
+<body class="bg-gray-100" >
+    <body class="overflow-x-hidden w-full max-w-full"></body>
+    
+   <!-- Navigation Menu -->
+<nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center sticky top-0 z-50">
+    <!-- Logo Container - Now with click handler -->
+    <div id="logoContainer" class="text-xl font-bold flex items-center cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="logo.png" alt="Cognarena Technologies Logo" class="h-10 mr-1">
+        <span class="font-[Futura Round] font-bold text-xl ml-1">Cognarena Technologies</span>
+    </div>
+    
+    <div x-data="{ open: false }" class="md:hidden relative">
+        <!-- Hamburger Button -->
+        <button @click="open = !open" class="text-gray-700 focus:outline-none relative w-6 h-5">
+            <span class="hamburger-top" :class="{'open': open}"></span>
+            <span class="hamburger-middle" :class="{'open': open}"></span>
+            <span class="hamburger-bottom" :class="{'open': open}"></span>
+        </button>
+        
+        <!-- Mobile Menu -->
+        <div x-show="open" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-4"
+             @click.away="open = false" 
+             class="absolute top-full right-0 w-48 bg-white shadow-lg rounded-md mt-2 py-2 z-50">
+            <a href="#about" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">About</a>
+            <a href="#services" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Services</a>
+            <a href="#academics" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Courses</a>
+            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Products</a>
+            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Gallery</a>
+            <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Contact</a>
+        </div>
+    </div>
+    
+    <!-- Desktop Menu -->
+    <ul class="hidden md:flex space-x-6">
+        <li><a href="#about-us" class="hover:text-gray-500">About</a></li>
+        <li><a href="#services" class="hover:text-gray-500">Services</a></li>
+        <li><a href="#academics" class="hover:text-gray-500">Courses</a></li>
+        <li><a href="#" class="hover:text-gray-500">Products</a></li>
+        <li><a href="#" class="hover:text-gray-500">Gallery</a></li>
+        <li><a href="#" class="hover:text-gray-500">Contact</a></li>
+    </ul>
+</nav>
+
+<!-- Hero Section -->
+<header class="relative h-screen bg-fixed md:bg-fixed bg-center bg-cover text-white" style="background-image: url('assets/bg1.png');">
+    <!-- Dark overlay -->
+    <div class="absolute inset-0 bg-black bg-opacity-60"></div>
+  
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between h-full px-6 md:px-20 transform translate-y-[-10%] md:translate-y-0">
+  
+      <!-- Left side: hero image + text -->
+      <div class="w-full md:w-1/2 relative md:top-[-20%] text-center md:text-left">
+        <!-- Mobile: hero3.png, Desktop: hero.png -->
+        <div class="mb-6">
+          <img src="assets/hero.png" alt="Hero" class="hidden md:block w-[800px] max-w-full" />
+          <img src="assets/hero3.png" alt="Hero Mobile" class="md:hidden w-full max-w-[500px] mx-auto" />
+        </div>
+  
+        <h1 class="text-3xl md:text-5xl font-bold">Level up your learning</h1>
+        <p class="italic text-base md:text-lg mt-2 mb-6">
+          Enhance your learning with our gamified courses
+        </p>
+        
+        <!-- Desktop Join Us button -->
+        <div class="hidden md:block">
+          <a href="#join-us" class="inline-block px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200">
+            Join Our Tribe!
+          </a>
+        </div>
+      </div>
+  
+      <!-- Right side: Spline iframe -->
+      <div class="w-full md:w-1/2 h-[50vh] md:h-full flex items-center justify-start md:justify-center z-[-10] relative overflow-hidden mt-8 md:mt-0">
+        <div class="transform scale-90 md:scale-[1.5] origin-left md:origin-center w-full h-full">
+          <iframe
+            src="https://my.spline.design/robotfollowcursorforlandingpage-de31dc71ef502bbae52a9fab65b27975/"
+            frameborder="0"
+            class="w-full h-full"
+            loading="lazy"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- Mobile-only Join Us button at bottom (scaled 18% larger) -->
+      <div class="md:hidden absolute bottom-8 left-0 right-0 flex justify-center transform translate-y-[-0%] scale-140 origin-bottom">
+        <a href="#join-us" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200">
+          Join Our Tribe!
+        </a>
+      </div>
+    </div>
+</header>
+  
+  
+
+    <!-- About Us Section -->
+        <section id="about-us" class="relative z-10 bg-gray-100 py-20">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-12">About Us</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="md:w-2/3">
+                    <p class="text-lg text-gray-700 mb-4">
+                        Cognarena Technologies is a dynamic startup dedicated to fostering innovation in technology and education. Our Academic Division offers engaging courses on Robotics, IoT, and AI, enhanced with gamification to ensure interactive and effective learning.
+                    </p>
+                    <p class="text-lg text-gray-700 mb-4">
+                        Our R&D Department specializes in designing and developing Special Purpose Machines (SPMs) and customized projects for schools and colleges. Additionally, our Electronics Store provides high-quality components and cutting-edge tech solutions.
+                    </p>
+                    <p class="text-lg text-gray-700">
+                        As a budding startup, we are committed to bridging the gap between learning and practical application, empowering students and professionals to excel in the ever-evolving tech landscape.
+                    </p>
+                </div>
+                <div class="md:w-1/3">
+                    <img src="au.png" alt="About Us" class="w-full h-auto object-cover rounded-lg shadow-lg max-w-md mx-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Services Section -->
+    <section id="services" class="text-center py-16 px-4 md:px-8 lg:px-16 bg-white">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold mb-12">Our Services</h2>
+            <p class="text-lg text-gray-700 max-w-3xl mx-auto mb-12">
+                We offer technical training, R&D solutions, and electronics sales under one roof. Our services include gamified courses on Robotics, IoT, and AI, development of SPMs and school/college projects—including 3D printing services—and a store for quality electronic components.
+            </p>
+            
+            <!-- Service Cards with Touch Support -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Academics Card -->
+                <a href="#academics" class="service-card rounded-lg overflow-hidden relative aspect-square block" 
+                   onclick="event.preventDefault(); this.classList.toggle('active')"
+                   onkeydown="if(event.key === 'Enter') this.click()"
+                   tabindex="0">
+                    <img src="h1.jpg" alt="Academics" class="w-full h-full object-cover">
+                    <div class="service-title">
+                        <h3 class="text-xl font-bold">Academics</h3>
+                        <p class="text-sm mt-1">Gamified courses on Robotics, IoT & AI</p>
+                    </div>
+                </a>
+                
+                <!-- R&D Card -->
+                <a href="#" class="service-card rounded-lg overflow-hidden relative aspect-square block" 
+                   onclick="event.preventDefault(); this.classList.toggle('active')"
+                   onkeydown="if(event.key === 'Enter') this.click()"
+                   tabindex="0">
+                    <img src="h2.jpg" alt="Research and Development" class="w-full h-full object-cover">
+                    <div class="service-title">
+                        <h3 class="text-xl font-bold">Research & Development</h3>
+                        <p class="text-sm mt-1">SPMs and custom projects for institutions</p>
+                    </div>
+                </a>
+                
+                <!-- Store Card -->
+                <a href="#" class="service-card rounded-lg overflow-hidden relative aspect-square block" 
+                   onclick="event.preventDefault(); this.classList.toggle('active')"
+                   onkeydown="if(event.key === 'Enter') this.click()"
+                   tabindex="0">
+                    <img src="h3.jpg" alt="Cognarena Store" class="w-full h-full object-cover">
+                    <div class="service-title">
+                        <h3 class="text-xl font-bold">Cognarena Store</h3>
+                        <p class="text-sm mt-1">Quality electronic components</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+               <!-- Updated Academics Section -->
+    <section id="academics" class="py-16 px-4 md:px-8 lg:px-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-6 animate-fade-in text-black">Academic Programs</h2>
+            <p class="text-lg text-black text-center max-w-3xl mx-auto mb-12 animate-fade-in">
+                We offer comprehensive courses, hands-on internships, and intensive workshops in cutting-edge technologies 
+                to equip students with future-ready skills. Our programs blend theory with practical implementation.
+            </p>
+            
+            <!-- Technologies Section -->
+            <div x-data="{
+                currentIndex: 0,
+                technologies: [
+                    {
+                        name: 'Robotics',
+                        image: 'robotics-bg.jpg',
+                        points: [
+                            'Combines mechanics, electronics, and coding to build smart machines',
+                            'Drives automation in industries like healthcare, manufacturing, and space',
+                            'Enhances creativity, problem-solving, and logical thinking',
+                            'Used in: Manufacturing, healthcare, defense, space exploration, and agriculture.'
+                        ]
+                    },
+                    {
+                        name: 'Internet of Things (IoT)',
+                        image: 'iot-bg.jpg',
+                        points: [
+                            'Connects devices to the internet for smart automation and real-time data',
+                            'Powers smart homes, healthcare, and industrial systems for efficiency',
+                            'Essential for building future-ready smart cities and industries',
+                            'Used in: Smart homes, healthcare, automotive, industrial automation, and agriculture.'
+                        ]
+                    },
+                    {
+                        name: 'Artificial Intelligence (AI)',
+                        image: 'ai-bg.jpg',
+                        points: [
+                            'Enables machines to think, learn, and make decisions like humans',
+                            'Transforms industries with automation, predictive analytics, and deep learning',
+                            'Helps create smarter personal assistants, chatbots, and automation tools.',
+                            'Used in: Healthcare, finance, cybersecurity, marketing, and autonomous vehicles.'
+                        ]
+                    }
+                ],
+                autoRotate: true,
+                interval: null,
+                isTransitioning: false,
+                transitionDuration: 600,
+                init() {
+                    this.startAutoRotation();
+                },
+                get visibleTechnologies() {
+                    const arr = [];
+                    for (let i = -1; i <= 1; i++) {
+                        const index = (this.currentIndex + i + this.technologies.length) % this.technologies.length;
+                        arr.push({
+                            ...this.technologies[index],
+                            position: i
+                        });
+                    }
+                    return arr;
+                },
+                nextSlide() {
+                    if (this.isTransitioning) return;
+                    this.isTransitioning = true;
+                    this.currentIndex = (this.currentIndex + 1) % this.technologies.length;
+                    setTimeout(() => this.isTransitioning = false, this.transitionDuration);
+                },
+                prevSlide() {
+                    if (this.isTransitioning) return;
+                    this.isTransitioning = true;
+                    this.currentIndex = (this.currentIndex - 1 + this.technologies.length) % this.technologies.length;
+                    setTimeout(() => this.isTransitioning = false, this.transitionDuration);
+                },
+                goToSlide(index) {
+                    if (this.isTransitioning || index === this.currentIndex) return;
+                    this.isTransitioning = true;
+                    this.currentIndex = index;
+                    setTimeout(() => this.isTransitioning = false, this.transitionDuration);
+                },
+                startAutoRotation() {
+                    this.stopAutoRotation();
+                    this.interval = setInterval(() => {
+                        this.nextSlide();
+                    }, 3000);
+                },
+                stopAutoRotation() {
+                    if (this.interval) {
+                        clearInterval(this.interval);
+                        this.interval = null;
+                    }
+                },
+                getCardStyle(position) {
+                    if (position === 0) return 'center-card';
+                    return 'side-card';
+                },
+                getCardTransform(position) {
+                    if (position === 0) return 'translateX(0) scale(1.1)';
+                    if (position === -1) return 'translateX(-110%) scale(0.93)';
+                    return 'translateX(110%) scale(0.93)';
+                }
+            }"
+            @mouseenter="stopAutoRotation()"
+            @mouseleave="startAutoRotation()">
+                
+                <!-- Desktop Carousel -->
+                <div class="hidden md:block">
+                    <div class="desktop-carousel h-[660px]">
+                        <template x-for="(tech, index) in visibleTechnologies" :key="index">
+                            <div 
+                                @click="if(tech.position !== 0) goToSlide((currentIndex + tech.position + technologies.length) % technologies.length)"
+                                :class="getCardStyle(tech.position)"
+                                :style="`transform: ${getCardTransform(tech.position)}`"
+                                class="tech-card absolute transition-all duration-600 ease-out rounded-xl"
+                                :style="`z-index: ${tech.position === 0 ? 10 : 5 - Math.abs(tech.position)}`">
+                                <img :src="tech.image" :alt="tech.name" class="tech-image rounded-xl">
+                                <div class="tech-content h-full">
+                                    <div x-show="tech.position === 0" class="h-full flex flex-col justify-end p-6">
+                                        <div class="text-backdrop rounded-xl">
+                                            <h3 class="text-2xl font-bold mb-4 text-white" x-text="tech.name"></h3>
+                                            <ul class="space-y-3 text-white">
+                                                <template x-for="(point, i) in tech.points" :key="i">
+                                                    <li class="flex items-start">
+                                                        <span class="text-blue-300 mr-2">🔹</span>
+                                                        <span x-text="point"></span>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div x-show="tech.position !== 0" class="title-only rounded-xl">
+                                        <h3 class="text-white" x-text="tech.name"></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="flex justify-center mt-6 space-x-3">
+                        <template x-for="(tech, index) in technologies" :key="index">
+                            <button 
+                                @click="goToSlide(index)"
+                                class="slider-dot"
+                                :class="{ 'active': currentIndex === index }"
+                                :aria-label="`Show ${tech.name}`">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Mobile Slider -->
+                <div class="md:hidden">
+                    <div class="tech-slider" x-ref="slider">
+                        <template x-for="(tech, index) in technologies" :key="index">
+                            <div class="tech-slide">
+                                <div class="tech-card h-[500px] mx-2 rounded-xl">
+                                    <img :src="tech.image" :alt="tech.name" class="tech-image rounded-xl">
+                                    <div class="tech-content h-full flex flex-col justify-end p-6">
+                                        <div class="text-backdrop rounded-xl">
+                                            <h3 class="text-2xl font-bold mb-4 text-white" x-text="tech.name"></h3>
+                                            <ul class="space-y-3 text-white">
+                                                <template x-for="(point, i) in tech.points" :key="i">
+                                                    <li class="flex items-start">
+                                                        <span class="text-blue-300 mr-2">🔹</span>
+                                                        <span x-text="point"></span>
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slider-nav">
+                        <template x-for="(tech, index) in technologies" :key="index">
+                            <button 
+                                @click="goToSlide(index)"
+                                class="slider-dot"
+                                :class="{ 'active': currentIndex === index }"
+                                :aria-label="`Show ${tech.name}`">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+ <!-- Join Us Section -->
+<section id="join-us" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 max-w-2xl">
+      <div class="text-center mb-12">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4">Join Our Community</h2>
+        <p class="text-lg text-gray-600 max-w-lg mx-auto">Fill out the form below to become part of our network.</p>
+      </div>
+  
+      <form id="joinForm" class="bg-white rounded-xl shadow-md p-8 space-y-6" 
+            action="https://formspree.io/f/xvgkvavb" method="POST">
+        <!-- Status message container (hidden by default) -->
+        <div id="form-status" class="hidden p-4 mb-4 rounded-lg"></div>
+        
+        <!-- Two-column layout for desktop -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label for="full-name" class="block text-sm font-medium text-gray-700">Full Name*</label>
+            <input type="text" id="full-name" name="full_name" placeholder="First & Last Name" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-gray-700">Email*</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+  
+        <div class="space-y-2">
+          <label for="institution" class="block text-sm font-medium text-gray-700">Institution/Organization*</label>
+          <input type="text" id="institution" name="institution" placeholder="Where you study or work" required
+                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+  
+        <!-- Two-column layout for desktop -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label for="designation" class="block text-sm font-medium text-gray-700">Designation*</label>
+            <select id="designation" name="designation" required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="" disabled selected>Select your designation</option>
+              <option value="student">Student</option>
+              <option value="educator">Educator</option>
+              <option value="administrator">Administrator</option>
+              <option value="other">Others</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label for="phone" class="block text-sm font-medium text-gray-700">Mobile Number*</label>
+            <input type="tel" id="phone" name="phone" placeholder="+1234567890" required
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+        </div>
+  
+        <div class="space-y-2">
+          <label for="interest" class="block text-sm font-medium text-gray-700">Area of Interest*</label>
+          <select id="interest" name="interest" required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="" disabled selected>Select your area of interest</option>
+            <option value="robotics">Robotics</option>
+            <option value="iot">IoT & Automation</option>
+            <option value="ai">AI</option>
+            <option value="rnd">R&D</option>
+            <option value="education">Education</option>
+            <option value="3dprinting">3D Printing</option>
+            <option value="other">Others</option>
+          </select>
+        </div>
+
+        <!-- Hidden field for success redirect -->
+        <input type="hidden" name="_next" value="https://yourwebsite.com/thank-you.html">
+        <!-- Optional: Disable captcha -->
+        <input type="hidden" name="_captcha" value="false">
+  
+        <div class="pt-4">
+          <button type="submit" id="submit-btn"
+                  class="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+            <span id="submit-text">Submit Application</span>
+            <span id="spinner" class="hidden ml-2">
+              <svg class="animate-spin h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </form>
+    </div>
+</section>
+
+<script>
+  document.getElementById('joinForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const form = e.target;
+    const submitBtn = document.getElementById('submit-btn');
+    const submitText = document.getElementById('submit-text');
+    const spinner = document.getElementById('spinner');
+    const statusEl = document.getElementById('form-status');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitText.textContent = 'Submitting...';
+    spinner.classList.remove('hidden');
+    statusEl.classList.add('hidden');
+    
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        // Show success message
+        statusEl.textContent = 'Thank you! Your submission has been received.';
+        statusEl.classList.remove('hidden', 'bg-red-100', 'text-red-700');
+        statusEl.classList.add('bg-green-100', 'text-green-700');
+        form.reset();
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Form submission failed');
+      }
+    } catch (error) {
+      // Show error message
+      statusEl.textContent = `Oops! There was a problem submitting your form: ${error.message}`;
+      statusEl.classList.remove('hidden', 'bg-green-100', 'text-green-700');
+      statusEl.classList.add('bg-red-100', 'text-red-700');
+    } finally {
+      // Reset button state
+      submitBtn.disabled = false;
+      submitText.textContent = 'Submit Application';
+      spinner.classList.add('hidden');
+    }
+  });
+</script>
+
+
+    <!-- Carousel/Slider Section with Navigation -->
+    <section x-data="{ current: 0, images: ['c1.jpeg', 'c2.jpg', 'c3.jpeg'] }" class="relative w-full mx-auto" x-init="setInterval(() => current = (current + 1) % images.length, 3000)">
+        <div class="overflow-hidden relative h-64 md:h-96 w-full">
+            <template x-for="(image, index) in images" :key="index">
+                <img :src="image" class="absolute w-full h-full object-cover transition-opacity duration-500" 
+                     :class="{'opacity-100': index === current, 'opacity-0': index !== current}">
+            </template>
+            
+            <!-- Navigation Buttons -->
+            <button @click="current = (current - 1 + images.length) % images.length" 
+                    class="carousel-btn prev">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+            
+            <button @click="current = (current + 1) % images.length" 
+                    class="carousel-btn next">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+            
+            <!-- Indicators -->
+            <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+                <template x-for="(image, index) in images" :key="index">
+                    <button @click="current = index" 
+                            class="w-3 h-3 rounded-full transition-all"
+                            :class="{'bg-white': index === current, 'bg-white/50': index !== current}">
+                    </button>
+                </template>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white text-center py-4">
+        <p class="text-gray-400 mt-2">&copy; 2025 | Website Design by Walker</p>
+    </footer>
+
+    <script>
+        // Enhanced slider functionality
+        document.addEventListener('alpine:initialized', () => {
+            Alpine.data('techSlider', () => ({
+                currentSlide: 0,
+                init() {
+                    const slider = this.$refs.slider;
+                    if (slider) {
+                        slider.addEventListener('scroll', () => {
+                            this.currentSlide = Math.round(slider.scrollLeft / slider.offsetWidth);
+                        });
+                    }
+                }
+            }));
+
+            // Enhanced mobile slider with smooth transitions
+            Alpine.data('mobileSlider', () => ({
+                currentSlide: 0,
+                slider: null,
+                init() {
+                    this.slider = this.$el.querySelector('.tech-slider');
+                    if (this.slider) {
+                        this.slider.addEventListener('scroll', Alpine.throttle(() => {
+                            this.currentSlide = Math.round(this.slider.scrollLeft / this.slider.offsetWidth);
+                        }, 100));
+                    }
+                },
+                goToSlide(index) {
+                    this.currentSlide = index;
+                    this.slider.scrollTo({
+                        left: index * this.slider.offsetWidth,
+                        behavior: 'smooth'
+                    });
+                }
+            }));
+        });
+
+        // Touchscreen optimization
+        document.addEventListener('DOMContentLoaded', function() {
+            const serviceCards = document.querySelectorAll('.service-card');
+            
+            // Handle touch events
+            serviceCards.forEach(card => {
+                // Reset active state when clicking elsewhere
+                document.addEventListener('click', function(e) {
+                    if (!card.contains(e.target)) {
+                        card.classList.remove('active');
+                    }
+                }, false);
+                
+                // Better touch feedback
+                card.addEventListener('touchstart', function() {
+                    this.classList.add('active');
+                }, {passive: true});
+                
+                card.addEventListener('touchend', function() {
+                    setTimeout(() => this.classList.remove('active'), 150);
+                }, {passive: true});
+            });
+        });
+    </script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.14.0/dist/shoelace.js"></script>
+<script>
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+    module.exports = {
+  theme: {
+    extend: {
+      scale: {
+        '140': '1.4', // Adds scale-140 class
+      }
+    }
+  }
+}
+  </script>
+  <script>
+    // Add click handler to logo container
+    document.getElementById('logoContainer').addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        
+        // Close mobile menu if open (optional)
+        if (typeof Alpine !== 'undefined' && Alpine.store('mobileMenuOpen')) {
+            Alpine.store('mobileMenuOpen', false);
+        }
+    });
+</script>
+<div class="share-buttons">
+    <!-- Instagram -->
+    <a href="https://www.instagram.com/cognarena_/" 
+       target="_blank" class="instagram" title="Instagram">
+       <i class="fab fa-instagram"></i>
+    </a>
+    
+    <!-- Facebook -->
+    <a href="https://www.facebook.com/share/1BKTKxL7aX/" 
+       target="_blank" class="facebook" title="Facebook">
+       <i class="fab fa-facebook-f"></i>
+    </a>
+    
+    <!-- LinkedIn -->
+    <a href="https://www.linkedin.com/company/cognarena/" 
+       target="_blank" class="linkedin" title="LinkedIn">
+       <i class="fab fa-linkedin-in"></i>
+    </a>
+</div>
+</body>
+</html>
